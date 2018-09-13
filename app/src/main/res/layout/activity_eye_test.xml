@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".EyeTestActivity">
+
+    <ImageView
+        android:id="@+id/image_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/start_eye_test_button"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:id="@+id/start_eye_test_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:text="@string/start_eye_test_button"
+        android:textSize="36sp"
+        android:visibility="visible" />
+
+    <TextView
+        android:id="@+id/output_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_alignParentBottom="true"
+        android:text=""
+        android:textAlignment="center"
+        android:textSize="20sp"
+        android:visibility="visible" />
+
+    <TextureView
+        android:id="@+id/camera_preview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:visibility="gone" />
+
+    <Button
+        android:id="@+id/capture_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/capture_button"
+        android:layout_alignParentBottom="true"
+        android:visibility="gone"/>
+
+    <!--<ImageView
+        android:id="@+id/image_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/start_eye_test_button"
+        android:layout_centerHorizontal="true"
+        android:contentDescription="eye" />-->
+
+    <TextView
+        android:id="@+id/prediction"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/start_eye_test_button"
+        android:layout_centerHorizontal="true"
+        android:text=""
+        android:textSize="30sp"
+        android:visibility="visible"/>
+
+</RelativeLayout>

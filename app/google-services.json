@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "137131014155",
+    "firebase_url": "https://aicare-392a0.firebaseio.com",
+    "project_id": "aicare-392a0",
+    "storage_bucket": "aicare-392a0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:137131014155:android:df0e0c47d28a0fd1",
+        "android_client_info": {
+          "package_name": "namb.com.aicare"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "137131014155-lg11ffoqekoc9h0qdv242svclqrmcv21.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "namb.com.aicare",
+            "certificate_hash": "7eae76df00132034b728ab22e1161cdc841c75aa"
+          }
+        },
+        {
+          "client_id": "137131014155-2u01iqrtqu1b5m07nogi1b595d158i09.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBb-FPBJF7kYQmP4_z6L-nqDQ65aOuDE_4"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "137131014155-2u01iqrtqu1b5m07nogi1b595d158i09.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
