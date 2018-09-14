@@ -34,9 +34,7 @@
         <activity android:name=".PermissionActivity" />
         <activity android:name=".HomeActivity" />
         <activity android:name=".EyeTestActivity" />
-        <activity
-            android:name=".LoginActivity"
-            android:label="@string/title_activity_login"></activity>
+        <activity android:name=".CameraActivity" />
     </application>
 
 </manifest>

@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">AICare</string>
     <string name="start_eye_test_button">ACTIVATE</string>
@@ -18,4 +19,11 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+
+    <!-- Strings related to camera2-->
+    <string name="picture">Picture</string>
+    <string name="description_info">Info</string>
+    <string name="request_permission">The app needs camera permission.</string>
+    <string name="camera_error">This device doesn\'t support Camera2 API.</string>
+    <string name="intro_message">Hello</string>
 </resources>
