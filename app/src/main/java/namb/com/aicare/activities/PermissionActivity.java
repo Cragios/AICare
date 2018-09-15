@@ -1,15 +1,17 @@
-package namb.com.aicare;
+package namb.com.aicare.activities;
 
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 
 import java.util.ArrayList;
+
+import namb.com.aicare.R;
 
 public class PermissionActivity extends AppCompatActivity {
     private static final String TAG = PermissionActivity.class.getSimpleName();
@@ -29,7 +31,8 @@ public class PermissionActivity extends AppCompatActivity {
             Log.d(TAG, "Permissions checking is OK, proceeding to Main Activity");
 
             Intent intent = new Intent();
-            intent.setClass(this, HomeActivity.class);
+            //intent.setClass(this, HomeActivity.class);
+            intent.setClass(this, LoginActivity.class);
             startActivity(intent);
 
             finish();

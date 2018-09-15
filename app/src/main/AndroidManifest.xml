@@ -24,17 +24,18 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".SplashScreen">
+        <activity android:name=".activities.SplashScreenActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".PermissionActivity" />
-        <activity android:name=".HomeActivity" />
-        <activity android:name=".EyeTestActivity" />
-        <activity android:name=".CameraActivity" />
+        <activity android:name=".activities.PermissionActivity" />
+        <activity android:name=".activities.HomeActivity" />
+        <activity android:name=".activities.EyeTestActivity" />
+        <activity android:name=".activities.CameraActivity" />
+        <activity android:name=".activities.LoginActivity" />
     </application>
 
 </manifest>

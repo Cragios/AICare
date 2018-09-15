@@ -1,24 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">AICare</string>
-    <string name="start_eye_test_button">ACTIVATE</string>
-    <string name="eye_test_button">EYE TEST</string>
-    <string name="records_button">RECORDS</string>
-    <string name="capture_button">CAPTURE</string>
-    <string name="title_activity_login">Sign in</string>
 
-    <!-- Strings related to login -->
-    <string name="prompt_email">Email</string>
-    <string name="prompt_password">Password (optional)</string>
-    <string name="action_sign_in">Sign in or register</string>
-    <string name="action_sign_in_short">Sign in</string>
-    <string name="error_invalid_email">This email address is invalid</string>
-    <string name="error_invalid_password">This password is too short</string>
-    <string name="error_incorrect_password">This password is incorrect</string>
-    <string name="error_field_required">This field is required</string>
-    <string name="permission_rationale">"Contacts permissions are needed for providing email
-        completions."
-    </string>
+    <!-- Auth UI -->
+    <string name="launch_title">FirebaseUI Auth Demo</string>
+    <string name="sign_in_start">Start</string>
+    <string name="sign_in_silent">Sign in silently</string>
+
+    <string name="providers_header">Auth providers</string>
+    <string name="providers_google">Google</string>
+    <string name="providers_facebook">Facebook</string>
+    <string name="providers_github">GitHub</string>
+    <string name="providers_twitter">Twitter</string>
+    <string name="providers_email">Email</string>
+    <string name="providers_phone">Phone</string>
+    <string name="providers_anonymous">Anonymous</string>
+
+    <string name="theme_header">Theme</string>
+    <string name="theme_default">Default theme</string>
+    <string name="theme_purple">Purple Theme</string>
+    <string name="theme_green">Green Theme</string>
+    <string name="theme_dark">Dark Theme</string>
+
+    <string name="logo_header">Logo</string>
+    <string name="logo_firebase">Firebase Auth</string>
+    <string name="logo_google">Google</string>
+    <string name="logo_none">None</string>
+
+    <string name="tos_header">Terms of Service URL</string>
+    <string name="tos_google">Google</string>
+    <string name="tos_firebase">Firebase</string>
+
+    <string name="pp_header">Privacy Policy URL</string>
+    <string name="pp_google">Google</string>
+    <string name="pp_firebase">Firebase</string>
+
+    <string name="google_scopes_header">Example extra Google scopes</string>
+    <string name="google_scope_drive_file">Drive File</string>
+    <string name="google_scope_youtube_data">Youtube data</string>
+
+    <string name="facebook_permissions_header">Example extra Facebook permissions</string>
+    <string name="facebook_permission_friends">Friends</string>
+    <string name="facebook_permission_photos">Photos</string>
+
+    <string name="github_permissions_header">Example extra GitHub permissions</string>
+    <string name="github_permission_repo">Repo</string>
+    <string name="github_permission_gist">Gist</string>
+
+    <string name="options_header">Other Options</string>
+    <string name="options_enable_credential_selector">Enable Smart Lock\'s credential selector</string>
+    <string name="options_enable_hint_selector">Enable Smart Lock\'s hint selector</string>
+    <string name="options_allow_new_email_acccount">Allow new account creation</string>
+    <string name="options_require_name">Require first/last name with email accounts.</string>
+
+    <string name="configuration_required">Configuration required - see README.md</string>
+    <string name="google_label_missing_config">Google configuration missing</string>
+    <string name="facebook_label_missing_config">Facebook configuration missing</string>
+    <string name="twitter_label_missing_config">Twitter configuration missing</string>
+    <string name="github_label_missing_config">GitHub configuration missing</string>
+
+    <string name="sign_in_cancelled">Sign in cancelled</string>
+    <string name="no_internet_connection">No internet connection</string>
+    <string name="unknown_error">An unknown error occurred</string>
+
+    <string name="title_anonymous_upgrade">FirebaseUI Anonymous Account Linking</string>
+    <string name="anonymous_sign_in">Anonymous Sign In</string>
+    <string name="launch_auth_ui">Launch Auth UI</string>
+    <string name="resolve_merge_conflict">Resolve Merge Conflict</string>
+
+    <!-- Auth UI - Signed in -->
+    <string name="signed_in_header">You are signed in!</string>
+    <string name="sign_out">Sign out</string>
+    <string name="delete_account_label">Delete account</string>
+
+    <string name="sign_in_failed">Sign in failed</string>
+    <string name="sign_out_failed">Sign out failed</string>
+    <string name="delete_account_failed">Delete account failed</string>
+
+    <string name="user_profile_header">User profile:</string>
+    <string name="profile_picture_content_desc">Profile picture</string>
+    <string name="used_providers">Providers used: %s</string>
+    <string name="idp_token">IDP Token</string>
+    <string name="idp_secret">IDP Secret</string>
 
     <!-- Strings related to camera2-->
     <string name="picture">Picture</string>
@@ -26,4 +89,11 @@
     <string name="request_permission">The app needs camera permission.</string>
     <string name="camera_error">This device doesn\'t support Camera2 API.</string>
     <string name="intro_message">Hello</string>
+
+    <string name="start_eye_test_button">ACTIVATE</string>
+    <string name="eye_test_button">EYE TEST</string>
+    <string name="records_button">RECORDS</string>
+    <string name="capture_button">CAPTURE</string>
+    <string name="sign_in_register_button">SIGN IN / REGISTER</string>
+    <string name="sign_out_button">SIGN OUT</string>
 </resources>

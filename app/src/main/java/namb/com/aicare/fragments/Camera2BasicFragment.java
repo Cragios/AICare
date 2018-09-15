@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package namb.com.aicare;
+package namb.com.aicare.fragments;
 
 import android.Manifest;
 import android.app.Activity;
@@ -81,6 +81,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+
+import namb.com.aicare.AutoFitTextureView;
+import namb.com.aicare.R;
 
 public class Camera2BasicFragment extends Fragment
         implements View.OnClickListener, ActivityCompat.OnRequestPermissionsResultCallback {

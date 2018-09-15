@@ -1,11 +1,13 @@
-package namb.com.aicare;
+package namb.com.aicare.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 
-public class SplashScreen extends AppCompatActivity {
+import namb.com.aicare.R;
+
+public class SplashScreenActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

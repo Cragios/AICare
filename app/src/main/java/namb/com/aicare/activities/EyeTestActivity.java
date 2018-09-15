@@ -1,7 +1,8 @@
-package namb.com.aicare;
+package namb.com.aicare.activities;
 
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
@@ -19,8 +20,10 @@ import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -28,8 +31,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.firebase.ui.auth.IdpResponse;
+import com.firebase.ui.auth.util.ExtraConstants;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnPausedListener;
 import com.google.firebase.storage.OnProgressListener;
@@ -42,9 +49,12 @@ import org.tensorflow.contrib.android.TensorFlowInferenceInterface;
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 import ai.api.AIConfiguration;
 import ai.api.AIDataService;
@@ -54,11 +64,20 @@ import ai.api.model.AIResponse;
 import ai.api.model.Fulfillment;
 import ai.api.model.Result;
 import ai.kitt.snowboy.SnowboyDetect;
+import namb.com.aicare.R;
+import namb.com.aicare.utils.ImageUtils;
+import namb.com.aicare.utils.SnowboyUtils;
+import namb.com.aicare.utils.Threadings;
 
 import static java.lang.Thread.sleep;
-import static namb.com.aicare.ImageUtils.argmax;
+import static namb.com.aicare.utils.ImageUtils.argmax;
 
 public class EyeTestActivity extends AppCompatActivity {
+
+    // Profile
+    FirebaseUser currentUser;
+    IdpResponse response;
+    String currentUserEmail;
 
     // Start button
     private Button button;
@@ -107,11 +126,18 @@ public class EyeTestActivity extends AppCompatActivity {
     TextView resultView;
     Snackbar progressBar;
 
+    @NonNull
+    public static Intent createIntent(@NonNull Context context, @Nullable IdpResponse response) {
+        return new Intent().setClass(context, EyeTestActivity.class)
+                .putExtra(ExtraConstants.IDP_RESPONSE, response);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_eye_test);
 
+        setupProfile();
         //setupASR();
         //setupTTS();
         //setupNLU();
@@ -121,6 +147,13 @@ public class EyeTestActivity extends AppCompatActivity {
         //startHotword();
         setupButton();
         setupIOViews();
+    }
+
+    // Profile
+    private void setupProfile() {
+        currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        response = getIntent().getParcelableExtra(ExtraConstants.IDP_RESPONSE);
+        currentUserEmail = currentUser.getEmail();
     }
 
     // Button
@@ -378,6 +411,7 @@ public class EyeTestActivity extends AppCompatActivity {
 
         // ML the image and save to storage if file exists
         if (file.exists()) {
+
             // AI
             final Bitmap bitmap = BitmapFactory.decodeFile(file.getPath());
             Threadings.runInMainThread(EyeTestActivity.this, new Runnable() {
@@ -391,7 +425,7 @@ public class EyeTestActivity extends AppCompatActivity {
             // Add to storage
             Uri storageFile = Uri.fromFile(file);
             StorageMetadata metadata = new StorageMetadata.Builder().setContentType("image/jpeg").build();
-            StorageReference imageReference = mStorageRef.child("images/"+ storageFile.getLastPathSegment());
+            StorageReference imageReference = mStorageRef.child(currentUserEmail + "/" + new SimpleDateFormat("ddMMyyyyHHmmss", Locale.TAIWAN).format(new Date()) + ".jpg");
             UploadTask uploadTask = imageReference.putFile(storageFile, metadata);
             uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
                 @Override

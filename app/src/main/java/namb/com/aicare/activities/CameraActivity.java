@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-package namb.com.aicare;
+package namb.com.aicare.activities;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
 import com.google.firebase.storage.StorageReference;
+
+import namb.com.aicare.R;
+import namb.com.aicare.fragments.Camera2BasicFragment;
 
 public class CameraActivity extends AppCompatActivity {
 

@@ -1,4 +1,4 @@
-package namb.com.aicare;
+package namb.com.aicare.utils;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
