@@ -88,7 +88,7 @@ public class HomeActivity extends AppCompatActivity {
         recordsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO: Open records
+                startActivity(RecordsActivity.createIntent(getApplicationContext(), response));
             }
         });
 

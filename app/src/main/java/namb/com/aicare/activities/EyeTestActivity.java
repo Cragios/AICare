@@ -23,7 +23,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -37,6 +36,8 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnPausedListener;
 import com.google.firebase.storage.OnProgressListener;
@@ -54,7 +55,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.UUID;
 
 import ai.api.AIConfiguration;
 import ai.api.AIDataService;
@@ -75,9 +75,9 @@ import static namb.com.aicare.utils.ImageUtils.argmax;
 public class EyeTestActivity extends AppCompatActivity {
 
     // Profile
-    FirebaseUser currentUser;
-    IdpResponse response;
-    String currentUserEmail;
+    private FirebaseUser currentUser;
+    private IdpResponse response;
+    private String currentUserEmail;
 
     // Start button
     private Button button;
@@ -106,6 +106,7 @@ public class EyeTestActivity extends AppCompatActivity {
 
     // Storage
     private StorageReference mStorageRef;
+    private DatabaseReference mDatabaseRef;
 
     public boolean imageTaken;
 
@@ -155,6 +156,7 @@ public class EyeTestActivity extends AppCompatActivity {
         response = getIntent().getParcelableExtra(ExtraConstants.IDP_RESPONSE);
         currentUserEmail = currentUser.getEmail();
     }
+    // Profile
 
     // Button
     private void setupButton() {
@@ -403,11 +405,12 @@ public class EyeTestActivity extends AppCompatActivity {
     // Storage
     private void setupStorage() {
         mStorageRef = FirebaseStorage.getInstance().getReference();
+        mDatabaseRef = FirebaseDatabase.getInstance().getReference();
         imageTaken = false;
     }
 
     private void processImage() {
-        File file = new File(getExternalFilesDir(null), "pic.jpg");
+        final File file = new File(getExternalFilesDir(null), "pic.jpg");
 
         // ML the image and save to storage if file exists
         if (file.exists()) {
@@ -425,13 +428,16 @@ public class EyeTestActivity extends AppCompatActivity {
             // Add to storage
             Uri storageFile = Uri.fromFile(file);
             StorageMetadata metadata = new StorageMetadata.Builder().setContentType("image/jpeg").build();
-            StorageReference imageReference = mStorageRef.child(currentUserEmail + "/" + new SimpleDateFormat("ddMMyyyyHHmmss", Locale.TAIWAN).format(new Date()) + ".jpg");
+            final String timeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.TAIWAN).format(new Date());
+            final String fileName = timeStamp.replaceAll("[^0-9]", "");
+            final StorageReference imageReference = mStorageRef.child(currentUserEmail + "/" + fileName + ".jpg");
             UploadTask uploadTask = imageReference.putFile(storageFile, metadata);
             uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
                     double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
                     Toast.makeText(EyeTestActivity.this, "Upload is " + (int)progress + "% done", Toast.LENGTH_SHORT).show();
+                    Log.e("Upload", "in progress");
                     // Use sessionUri to resume download but idk how :(
                     Uri sessionUri = taskSnapshot.getUploadSessionUri();
                 }
@@ -449,7 +455,7 @@ public class EyeTestActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                     Toast.makeText(EyeTestActivity.this, "Upload successful", Toast.LENGTH_SHORT).show();
-
+                    mDatabaseRef.child(currentUserEmail.replaceAll("[^a-zA-Z0-9]", "")).child(fileName).setValue(timeStamp);
                 }
             });
 
