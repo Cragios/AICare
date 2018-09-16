@@ -430,7 +430,8 @@ public class EyeTestActivity extends AppCompatActivity {
             StorageMetadata metadata = new StorageMetadata.Builder().setContentType("image/jpeg").build();
             final String timeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.TAIWAN).format(new Date());
             final String fileName = timeStamp.replaceAll("[^0-9]", "");
-            final StorageReference imageReference = mStorageRef.child(currentUserEmail + "/" + fileName + ".jpg");
+            final String filePath = currentUserEmail + "/" + fileName + ".jpg";
+            final StorageReference imageReference = mStorageRef.child(filePath);
             UploadTask uploadTask = imageReference.putFile(storageFile, metadata);
             uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
                 @Override
@@ -455,7 +456,7 @@ public class EyeTestActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                     Toast.makeText(EyeTestActivity.this, "Upload successful", Toast.LENGTH_SHORT).show();
-                    mDatabaseRef.child(currentUserEmail.replaceAll("[^a-zA-Z0-9]", "")).child(fileName).setValue(timeStamp);
+                    mDatabaseRef.child(currentUserEmail.replaceAll("[^a-zA-Z0-9]", "")).child(timeStamp).setValue(filePath);
                 }
             });
 

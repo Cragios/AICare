@@ -1,4 +1,4 @@
-package namb.com.aicare.activities;
+package namb.com.aicare;
 
 import android.content.Context;
 import android.support.annotation.NonNull;

@@ -13,9 +13,6 @@ import com.google.firebase.storage.FirebaseStorage;
 
 import java.util.List;
 
-import namb.com.aicare.activities.GlideApp;
-
-
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHolder> {
     private Context mContext;
     private List<DataSnapshot> mUploads;
@@ -35,10 +32,10 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
 
     @Override
     public void onBindViewHolder(ImageViewHolder holder, int position) {
-        DataSnapshot uploadCurrent = mUploads.get(getItemCount()-1-position);
-        holder.textViewName.setText(String.valueOf(uploadCurrent.getValue()));
+        DataSnapshot snapshot = mUploads.get(getItemCount()-1-position);
+        holder.textViewName.setText(snapshot.getKey());
         GlideApp.with(mContext)
-                .load(FirebaseStorage.getInstance().getReference().child(mEmail + "/" + uploadCurrent.getKey() + ".jpg"))
+                .load(FirebaseStorage.getInstance().getReference().child(String.valueOf(snapshot.getValue())))
                 .placeholder(R.mipmap.ic_launcher)
                 .centerCrop()
                 .into(holder.imageView);
