@@ -34,21 +34,14 @@
         android:textSize="20sp"
         android:visibility="visible" />
 
-    <TextureView
-        android:id="@+id/camera_preview"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:visibility="gone" />
-
-    <Button
-        android:id="@+id/capture_button"
-        android:layout_width="match_parent"
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        android:layout_width="300sp"
         android:layout_height="wrap_content"
-        android:text="@string/capture_button"
-        android:layout_alignParentBottom="true"
-        android:visibility="gone"/>
+        android:layout_below="@+id/start_eye_test_button"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="16dp" />
 
     <!--<ImageView
         android:id="@+id/image_view"

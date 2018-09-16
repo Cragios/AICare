@@ -15,6 +15,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Handler;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
@@ -27,6 +28,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -107,6 +109,8 @@ public class EyeTestActivity extends AppCompatActivity {
     // Storage
     private StorageReference mStorageRef;
     private DatabaseReference mDatabaseRef;
+
+    private ProgressBar mProgressBar;
 
     public boolean imageTaken;
 
@@ -406,6 +410,7 @@ public class EyeTestActivity extends AppCompatActivity {
     private void setupStorage() {
         mStorageRef = FirebaseStorage.getInstance().getReference();
         mDatabaseRef = FirebaseDatabase.getInstance().getReference();
+        mProgressBar = findViewById(R.id.progress_bar);
         imageTaken = false;
     }
 
@@ -437,8 +442,9 @@ public class EyeTestActivity extends AppCompatActivity {
                 @Override
                 public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
                     double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
-                    Toast.makeText(EyeTestActivity.this, "Upload is " + (int)progress + "% done", Toast.LENGTH_SHORT).show();
-                    Log.e("Upload", "in progress");
+                    mProgressBar.setProgress((int) progress);
+                    Log.e("Upload", String.valueOf(progress));
+
                     // Use sessionUri to resume download but idk how :(
                     Uri sessionUri = taskSnapshot.getUploadSessionUri();
                 }
@@ -455,6 +461,13 @@ public class EyeTestActivity extends AppCompatActivity {
             }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            mProgressBar.setProgress(0);
+                        }
+                    }, 500);
                     Toast.makeText(EyeTestActivity.this, "Upload successful", Toast.LENGTH_SHORT).show();
                     mDatabaseRef.child(currentUserEmail.replaceAll("[^a-zA-Z0-9]", "")).child(timeStamp).setValue(filePath);
                 }
