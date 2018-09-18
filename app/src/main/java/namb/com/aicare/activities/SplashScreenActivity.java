@@ -6,6 +6,9 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 
 import namb.com.aicare.R;
+import namb.com.aicare.utils.Threadings;
+
+import static java.lang.Thread.sleep;
 
 public class SplashScreenActivity extends AppCompatActivity {
 
@@ -14,12 +17,17 @@ public class SplashScreenActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash_screen);
 
-        new Handler().postDelayed(new Runnable() {
+        Threadings.runInBackgroundThread(new Runnable() {
             @Override
             public void run() {
-                startActivity(new Intent(getApplicationContext(), PermissionActivity.class));
+                try {
+                    sleep(3000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                startActivity(PermissionActivity.createIntent(getApplicationContext()));
                 finish();
             }
-        }, 3000);
+        });
     }
 }

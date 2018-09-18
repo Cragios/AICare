@@ -36,7 +36,8 @@
         <activity android:name=".activities.EyeTestActivity" />
         <activity android:name=".activities.CameraActivity" />
         <activity android:name=".activities.LoginActivity" />
-        <activity android:name=".activities.RecordsActivity"></activity>
+        <activity android:name=".activities.RecordsActivity" />
+        <activity android:name=".activities.SettingsActivity"></activity>
     </application>
 
 </manifest>

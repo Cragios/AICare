@@ -14,23 +14,20 @@ import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.CountDownTimer;
-import android.os.Handler;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.firebase.ui.auth.IdpResponse;
 import com.firebase.ui.auth.util.ExtraConstants;
@@ -76,17 +73,20 @@ import static namb.com.aicare.utils.ImageUtils.argmax;
 
 public class EyeTestActivity extends AppCompatActivity {
 
+    private static final String TAG = "EyeTestActivity";
+
     // Profile
     private FirebaseUser currentUser;
     private IdpResponse response;
     private String currentUserEmail;
 
     // Start button
-    private Button button;
+    private Button startEyeTestButton;
     private BroadcastReceiver broadcastReceiver;
     private IntentFilter intentFilter;
 
-    // Display text
+    // Views
+    private View rootView;
     private TextView outputTextView;
 
     // Hotword
@@ -107,14 +107,16 @@ public class EyeTestActivity extends AppCompatActivity {
     private AIDataService aiDataService;
 
     // Storage
-    private StorageReference mStorageRef;
-    private DatabaseReference mDatabaseRef;
+    private StorageReference storageReference;
+    private DatabaseReference databaseReference;
+    private Uri sessionUri;
+    private boolean uploadInterrupted;
+    private String predictionResult;
 
-    private ProgressBar mProgressBar;
+    private ProgressBar uploadProgressBar;
+    private TextView uploadTextView;
 
-    public boolean imageTaken;
-
-    private CountDownTimer countDownTimer;
+    private boolean imageTaken;
 
     // Tensorflow
     //// PATH TO OUR MODEL FILE AND NAMES OF THE INPUT AND OUTPUT NODES
@@ -127,22 +129,23 @@ public class EyeTestActivity extends AppCompatActivity {
     private float[] floatValues;
     private int[] INPUT_SIZE = {224,224,3};
     //// VIEWS
-    ImageView imageView;
-    TextView resultView;
-    Snackbar progressBar;
+    TextView predictionTextView;
+    Snackbar predictionProgressBar;
 
     @NonNull
     public static Intent createIntent(@NonNull Context context, @Nullable IdpResponse response) {
-        return new Intent().setClass(context, EyeTestActivity.class)
+        return new Intent(context, EyeTestActivity.class)
                 .putExtra(ExtraConstants.IDP_RESPONSE, response);
     }
 
+    // Activity lifecycle
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_eye_test);
 
         setupProfile();
+        setupViews();
         //setupASR();
         //setupTTS();
         //setupNLU();
@@ -150,22 +153,67 @@ public class EyeTestActivity extends AppCompatActivity {
         setupTensorFlow();
         setupHotword();
         //startHotword();
-        setupButton();
-        setupIOViews();
+        setupButtons();
     }
 
-    // Profile
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        checkSignedIn();
+
+        Log.e("Resume", "True");
+        // process image if one was just taken
+        File imageFile = new File(getExternalFilesDir(null), "pic.jpg");
+        if (imageTaken && imageFile.exists()) {
+            processImage(imageFile);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
+    // Activity lifecycle
+
+    private void checkSignedIn() {
+        currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            startActivity(LoginActivity.createIntent(getApplicationContext()));
+            finish();
+        }
+    }
+
+    // Setup general
     private void setupProfile() {
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
         response = getIntent().getParcelableExtra(ExtraConstants.IDP_RESPONSE);
         currentUserEmail = currentUser.getEmail();
     }
-    // Profile
 
-    // Button
-    private void setupButton() {
-        button = findViewById(R.id.start_eye_test_button);
-        button.setOnClickListener(new View.OnClickListener() {
+    private void setupViews() {
+        rootView = findViewById(R.id.root);
+        outputTextView = findViewById(R.id.output_text_view);
+    }
+
+    private void setupButtons() {
+        startEyeTestButton = findViewById(R.id.start_eye_test_button);
+        startEyeTestButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 imageTaken = true;
@@ -174,13 +222,7 @@ public class EyeTestActivity extends AppCompatActivity {
             }
         });
     }
-    // Button
-
-    // Speech IOViews
-    private void setupIOViews() {
-        outputTextView = findViewById(R.id.output_text_view);
-    }
-    // Speech IOViews
+    // Setup general
 
     // Hotword
     private void setupHotword() {
@@ -397,7 +439,7 @@ public class EyeTestActivity extends AppCompatActivity {
             Threadings.runInMainThread(this, new Runnable() {
                 @Override
                 public void run() {
-                    button.setVisibility(View.GONE);
+                    startEyeTestButton.setVisibility(View.GONE);
                     //captureImage();
                 }
             });
@@ -408,74 +450,78 @@ public class EyeTestActivity extends AppCompatActivity {
 
     // Storage
     private void setupStorage() {
-        mStorageRef = FirebaseStorage.getInstance().getReference();
-        mDatabaseRef = FirebaseDatabase.getInstance().getReference();
-        mProgressBar = findViewById(R.id.progress_bar);
+        storageReference = FirebaseStorage.getInstance().getReference();
+        databaseReference = FirebaseDatabase.getInstance().getReference();
+
+        sessionUri = null;
+
+        uploadProgressBar = findViewById(R.id.upload_progress_bar);
+        uploadTextView = findViewById(R.id.upload_text_view);
+
+        uploadInterrupted = false;
         imageTaken = false;
     }
 
-    private void processImage() {
-        final File file = new File(getExternalFilesDir(null), "pic.jpg");
+    private void processImage(File imageFile) {
 
-        // ML the image and save to storage if file exists
-        if (file.exists()) {
+        // ML the image and save to storage
 
-            // AI
-            final Bitmap bitmap = BitmapFactory.decodeFile(file.getPath());
-            Threadings.runInMainThread(EyeTestActivity.this, new Runnable() {
-                @Override
-                public void run() {
-                    progressBar.show();
-                    predict(bitmap);
-                }
-            });
+        // AI
+        final Bitmap bitmap = BitmapFactory.decodeFile(imageFile.getPath());
+        Threadings.runInMainThread(EyeTestActivity.this, new Runnable() {
+            @Override
+            public void run() {
+                predictionProgressBar.show();
+                predict(bitmap);
+            }
+        });
 
-            // Add to storage
-            Uri storageFile = Uri.fromFile(file);
-            StorageMetadata metadata = new StorageMetadata.Builder().setContentType("image/jpeg").build();
-            final String timeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.TAIWAN).format(new Date());
-            final String fileName = timeStamp.replaceAll("[^0-9]", "");
-            final String filePath = currentUserEmail + "/" + fileName + ".jpg";
-            final StorageReference imageReference = mStorageRef.child(filePath);
-            UploadTask uploadTask = imageReference.putFile(storageFile, metadata);
-            uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                    double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
-                    mProgressBar.setProgress((int) progress);
-                    Log.e("Upload", String.valueOf(progress));
-
-                    // Use sessionUri to resume download but idk how :(
-                    Uri sessionUri = taskSnapshot.getUploadSessionUri();
-                }
-            }).addOnPausedListener(new OnPausedListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onPaused(UploadTask.TaskSnapshot taskSnapshot) {
-                    Toast.makeText(EyeTestActivity.this, "Upload is paused", Toast.LENGTH_SHORT).show();
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception exception) {
-                    Toast.makeText(EyeTestActivity.this, "Upload failed", Toast.LENGTH_SHORT).show();
-                }
-            }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    Handler handler = new Handler();
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            mProgressBar.setProgress(0);
-                        }
-                    }, 500);
-                    Toast.makeText(EyeTestActivity.this, "Upload successful", Toast.LENGTH_SHORT).show();
-                    mDatabaseRef.child(currentUserEmail.replaceAll("[^a-zA-Z0-9]", "")).child(timeStamp).setValue(filePath);
-                }
-            });
-
-            // Delete image from memory
-            boolean imageDeleted = file.delete();
+        // Add to storage
+        Uri storageFile = Uri.fromFile(imageFile);
+        StorageMetadata metadata = new StorageMetadata.Builder().setContentType("image/jpeg").build();
+        final String timeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.TAIWAN).format(new Date());
+        final String fileName = timeStamp.replaceAll("[^0-9]", "");
+        final String filePath = currentUserEmail + "/" + fileName + ".jpg";
+        final StorageReference imageReference = storageReference.child(filePath);
+        final UploadTask uploadTask;
+        if (uploadInterrupted && sessionUri != null) {
+            uploadTask = imageReference.putFile(storageFile, metadata, sessionUri);
+        } else {
+            uploadTask = imageReference.putFile(storageFile, metadata);
         }
+        uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                final double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                uploadProgressBar.setProgress((int) progress);
+                uploadTextView.setText((int) progress + "%");
+                Log.e("Upload", (int)progress + "%");
+
+                sessionUri = taskSnapshot.getUploadSessionUri();
+            }
+        }).addOnPausedListener(new OnPausedListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onPaused(UploadTask.TaskSnapshot taskSnapshot) {
+                uploadTextView.setText("Upload is paused");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                uploadInterrupted = true;
+                uploadTextView.setText("Upload failed");
+            }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                uploadProgressBar.setProgress(0);
+                databaseReference.child(currentUserEmail.replaceAll("[^a-zA-Z0-9]", "")).child(timeStamp).setValue(predictionResult);
+                uploadInterrupted = false;
+                uploadTextView.setText("Upload successful");
+            }
+        });
+
+        // Delete image from memory
+        boolean imageDeleted = imageFile.delete();
 
         // Change boolean at end of function in case code gets interrupted halfway?
         imageTaken = false;
@@ -486,10 +532,9 @@ public class EyeTestActivity extends AppCompatActivity {
     private void setupTensorFlow() {
         tf = new TensorFlowInferenceInterface(getAssets(),MODEL_PATH);
 
-        imageView = findViewById(R.id.image_view);
-        resultView = findViewById(R.id.prediction);
-
-        progressBar = Snackbar.make(imageView,"PROCESSING IMAGE", Snackbar.LENGTH_INDEFINITE);
+        predictionTextView = findViewById(R.id.prediction_text_view);
+        predictionResult = "no result";
+        predictionProgressBar = Snackbar.make(rootView,"PROCESSING IMAGE", Snackbar.LENGTH_INDEFINITE);
     }
 
     // TODO: do something
@@ -551,8 +596,9 @@ public class EyeTestActivity extends AppCompatActivity {
                         @SuppressLint("SetTextI18n")
                         @Override
                         public void run() {
-                            progressBar.dismiss();
-                            resultView.setText(label + " : " + conf + "%");
+                            predictionProgressBar.dismiss();
+                            predictionResult = label + " : " + conf + "%";
+                            predictionTextView.setText(predictionResult);
                             Log.e("Values", Arrays.toString(floatValues));
                         }
                     });
@@ -567,10 +613,9 @@ public class EyeTestActivity extends AppCompatActivity {
     }
     // Check image
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Log.e("Resume", "True");
-        processImage();
+    // Snackbar
+    private void showSnackbar(@StringRes int errorMessageRes) {
+        Snackbar.make(rootView, errorMessageRes, Snackbar.LENGTH_LONG).show();
     }
+    // Snackbar
 }

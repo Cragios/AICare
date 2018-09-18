@@ -90,10 +90,12 @@
     <string name="camera_error">This device doesn\'t support Camera2 API.</string>
     <string name="intro_message">Hello</string>
 
-    <string name="start_eye_test_button">ACTIVATE</string>
     <string name="eye_test_button">EYE TEST</string>
     <string name="records_button">RECORDS</string>
+    <string name="settings_button">SETTINGS</string>
+    <string name="start_eye_test_button">ACTIVATE</string>
     <string name="capture_button">CAPTURE</string>
     <string name="sign_in_register_button">SIGN IN / REGISTER</string>
     <string name="sign_out_button">SIGN OUT</string>
+    <string name="delete_account_button">DELETE ACCOUNT</string>
 </resources>

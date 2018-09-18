@@ -1,6 +1,7 @@
-package namb.com.aicare;
+package namb.com.aicare.adapters;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,29 +14,34 @@ import com.google.firebase.storage.FirebaseStorage;
 
 import java.util.List;
 
-public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHolder> {
+import namb.com.aicare.GlideApp;
+import namb.com.aicare.R;
+
+public class RecordsAdapter extends RecyclerView.Adapter<RecordsAdapter.ImageViewHolder> {
     private Context mContext;
     private List<DataSnapshot> mUploads;
     private String mEmail;
 
-    public ImageAdapter(Context context, List<DataSnapshot> uploads, String currUserEmail) {
+    public RecordsAdapter(Context context, List<DataSnapshot> uploads, String currUserEmail) {
         mContext = context;
         mUploads = uploads;
         mEmail = currUserEmail;
     }
 
+    @NonNull
     @Override
     public ImageViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(mContext).inflate(R.layout.image_item, parent, false);
+        View v = LayoutInflater.from(mContext).inflate(R.layout.adapter_records, parent, false);
         return new ImageViewHolder(v);
     }
 
     @Override
     public void onBindViewHolder(ImageViewHolder holder, int position) {
         DataSnapshot snapshot = mUploads.get(getItemCount()-1-position);
-        holder.textViewName.setText(snapshot.getKey());
+        holder.nameTextView.setText(snapshot.getKey());
+        holder.resultTextView.setText(String.valueOf(snapshot.getValue()));
         GlideApp.with(mContext)
-                .load(FirebaseStorage.getInstance().getReference().child(String.valueOf(snapshot.getValue())))
+                .load(FirebaseStorage.getInstance().getReference(mEmail).child(snapshot.getKey().replaceAll("[^a-zA-Z0-9]", "") + ".jpg"))
                 .placeholder(R.mipmap.ic_launcher)
                 .centerCrop()
                 .into(holder.imageView);
@@ -47,14 +53,16 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
     }
 
     public class ImageViewHolder extends RecyclerView.ViewHolder {
-        public TextView textViewName;
+        public TextView nameTextView;
+        public TextView resultTextView;
         public ImageView imageView;
 
         public ImageViewHolder(View itemView) {
             super(itemView);
 
-            textViewName = itemView.findViewById(R.id.text_view_name);
-            imageView = itemView.findViewById(R.id.image_view_upload);
+            nameTextView = itemView.findViewById(R.id.name_text_view);
+            resultTextView = itemView.findViewById(R.id.result_text_view);
+            imageView = itemView.findViewById(R.id.upload_image_view);
         }
     }
 }

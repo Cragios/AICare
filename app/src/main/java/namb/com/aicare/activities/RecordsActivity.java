@@ -26,12 +26,12 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
-import namb.com.aicare.ImageAdapter;
+import namb.com.aicare.adapters.RecordsAdapter;
 import namb.com.aicare.R;
 
 public class RecordsActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
-    private ImageAdapter mAdapter;
+    private RecordsAdapter mAdapter;
 
     private ProgressBar mProgressCircle;
 
@@ -46,7 +46,7 @@ public class RecordsActivity extends AppCompatActivity {
 
     @NonNull
     public static Intent createIntent(@NonNull Context context, @Nullable IdpResponse response) {
-        return new Intent().setClass(context, RecordsActivity.class)
+        return new Intent(context, RecordsActivity.class)
                 .putExtra(ExtraConstants.IDP_RESPONSE, response);
     }
 
@@ -60,12 +60,15 @@ public class RecordsActivity extends AppCompatActivity {
         setupScrollTopButton();
     }
 
+    // Profile
     private void setupProfile() {
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
         response = getIntent().getParcelableExtra(ExtraConstants.IDP_RESPONSE);
         currentUserEmail = currentUser.getEmail();
     }
+    //Profile
 
+    // Recycler view
     private void setupView() {
         mRecyclerView = findViewById(R.id.recycler_view);
         mRecyclerView.setHasFixedSize(true);
@@ -84,7 +87,7 @@ public class RecordsActivity extends AppCompatActivity {
                     mUploads.add(postSnapshot);
                 }
 
-                mAdapter = new ImageAdapter(RecordsActivity.this, mUploads, currentUserEmail);
+                mAdapter = new RecordsAdapter(RecordsActivity.this, mUploads, currentUserEmail);
 
                 mRecyclerView.setAdapter(mAdapter);
                 mRecyclerView.smoothScrollToPosition(0);
@@ -108,4 +111,5 @@ public class RecordsActivity extends AppCompatActivity {
             }
         });
     }
+    // Recycler view
 }
