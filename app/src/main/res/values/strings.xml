@@ -98,4 +98,7 @@
     <string name="sign_in_register_button">SIGN IN / REGISTER</string>
     <string name="sign_out_button">SIGN OUT</string>
     <string name="delete_account_button">DELETE ACCOUNT</string>
+    <string name="clear_data_button">CLEAR ALL DATA</string>
+
+    <string name="processing_image">PROCESSING IMAGE&#8230;</string>
 </resources>

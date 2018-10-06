@@ -4,12 +4,14 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
+import android.util.Log;
 
 import com.google.android.gms.common.util.ArrayUtils;
 
 import org.json.JSONObject;
 
 import java.io.InputStream;
+import java.util.Arrays;
 
 /**
  * Utility class for manipulating images.
@@ -109,9 +111,8 @@ public class ImageUtils {
             output[i * 3 + 1] = (float)((val >> 8) & 0xFF)/std;
             output[i * 3 + 2] = (float)(val & 0xFF)/std;
         }
-
+        Log.e("Values", Arrays.toString(output));
         return output;
-
     }
 
     public static Object[] argmax(float[] array){

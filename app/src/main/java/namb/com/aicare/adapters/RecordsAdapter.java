@@ -20,12 +20,12 @@ import namb.com.aicare.R;
 public class RecordsAdapter extends RecyclerView.Adapter<RecordsAdapter.ImageViewHolder> {
     private Context mContext;
     private List<DataSnapshot> mUploads;
-    private String mEmail;
+    private String mUid;
 
-    public RecordsAdapter(Context context, List<DataSnapshot> uploads, String currUserEmail) {
+    public RecordsAdapter(Context context, List<DataSnapshot> uploads, String currUserUid) {
         mContext = context;
         mUploads = uploads;
-        mEmail = currUserEmail;
+        mUid = currUserUid;
     }
 
     @NonNull
@@ -41,7 +41,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecordsAdapter.ImageVie
         holder.nameTextView.setText(snapshot.getKey());
         holder.resultTextView.setText(String.valueOf(snapshot.getValue()));
         GlideApp.with(mContext)
-                .load(FirebaseStorage.getInstance().getReference(mEmail).child(snapshot.getKey().replaceAll("[^a-zA-Z0-9]", "") + ".jpg"))
+                .load(FirebaseStorage.getInstance().getReference(mUid).child(snapshot.getKey().replaceAll("[^a-zA-Z0-9]", "") + ".jpg"))
                 .placeholder(R.mipmap.ic_launcher)
                 .centerCrop()
                 .into(holder.imageView);

@@ -37,7 +37,7 @@ public class RecordsActivity extends AppCompatActivity {
 
     private FirebaseUser currentUser;
     private IdpResponse response;
-    private String currentUserEmail;
+    private String currentUserUid;
 
     private DatabaseReference mDatabaseRef;
     private List<DataSnapshot> mUploads;
@@ -64,7 +64,7 @@ public class RecordsActivity extends AppCompatActivity {
     private void setupProfile() {
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
         response = getIntent().getParcelableExtra(ExtraConstants.IDP_RESPONSE);
-        currentUserEmail = currentUser.getEmail();
+        currentUserUid = currentUser.getUid();
     }
     //Profile
 
@@ -78,7 +78,7 @@ public class RecordsActivity extends AppCompatActivity {
 
         mUploads = new ArrayList<>();
 
-        mDatabaseRef = FirebaseDatabase.getInstance().getReference(currentUserEmail.replaceAll("[^a-zA-Z ]", ""));
+        mDatabaseRef = FirebaseDatabase.getInstance().getReference(currentUserUid);
 
         mDatabaseRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -87,7 +87,7 @@ public class RecordsActivity extends AppCompatActivity {
                     mUploads.add(postSnapshot);
                 }
 
-                mAdapter = new RecordsAdapter(RecordsActivity.this, mUploads, currentUserEmail);
+                mAdapter = new RecordsAdapter(RecordsActivity.this, mUploads, currentUserUid);
 
                 mRecyclerView.setAdapter(mAdapter);
                 mRecyclerView.smoothScrollToPosition(0);
@@ -96,7 +96,7 @@ public class RecordsActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Toast.makeText(RecordsActivity.this, databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
                 mProgressCircle.setVisibility(View.INVISIBLE);
             }
         });

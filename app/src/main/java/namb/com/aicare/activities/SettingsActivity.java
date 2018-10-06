@@ -2,6 +2,7 @@ package namb.com.aicare.activities;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
@@ -19,8 +20,11 @@ import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
 import com.firebase.ui.auth.util.ExtraConstants;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -45,10 +49,14 @@ public class SettingsActivity extends AppCompatActivity {
     private IdpResponse response;
     private String currentUserName;
     private String currentUserEmail;
+    private String currentUserUid;
 
     private View rootView;
+    private TextView nameTextView;
+    private TextView emailTextView;
 
     private Button signOutButton;
+    private Button clearDataButton;
     private Button deleteButton;
 
     // Storage
@@ -71,6 +79,7 @@ public class SettingsActivity extends AppCompatActivity {
         setupProfile();
         setupViews();
         setupStorage();
+        showProfile();
         setupButtons();
     }
 
@@ -79,6 +88,21 @@ public class SettingsActivity extends AppCompatActivity {
         super.onResume();
 
         checkSignedIn();
+        showProfile();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        delete = false;
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        delete = false;
     }
 
     // Activity lifecycle
@@ -97,11 +121,14 @@ public class SettingsActivity extends AppCompatActivity {
         response = getIntent().getParcelableExtra(ExtraConstants.IDP_RESPONSE);
         currentUserName = currentUser.getDisplayName();
         currentUserEmail = currentUser.getEmail();
+        currentUserUid = currentUser.getUid();
     }
 
 
     private void setupViews() {
         rootView = findViewById(R.id.root);
+        nameTextView = findViewById(R.id.name_text_view);
+        emailTextView = findViewById(R.id.email_text_view);
     }
 
     private void setupButtons() {
@@ -113,12 +140,21 @@ public class SettingsActivity extends AppCompatActivity {
             }
         });
 
+        clearDataButton = findViewById(R.id.clear_data_button);
+        clearDataButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                clearData();
+            }
+        });
+
         deleteButton = findViewById(R.id.delete_button);
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO: Display warning screen
-                delete();
+                // clearData();
+                // delete();
+                // signOut();
             }
         });
     }
@@ -126,7 +162,8 @@ public class SettingsActivity extends AppCompatActivity {
 
     // TODO: Populate views
     private void showProfile() {
-        //
+        nameTextView.setText("Name: " + currentUserName);
+        emailTextView.setText("Email: " + currentUserEmail);
     }
     // Populate views
 
@@ -147,19 +184,36 @@ public class SettingsActivity extends AppCompatActivity {
                 });
     }
 
-    private void delete() {
+    private void clearData() {
         delete = true;
-        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+        databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                    if (delete) {
-                        storageReference.child(Objects.requireNonNull(postSnapshot.getKey()).replaceAll("[^a-zA-Z0-9]", "") + ".jpg").delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                databaseReference.removeValue();
-                            }
-                        });
+                if (delete) {
+                    for (final DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                        storageReference.child(Objects.requireNonNull(postSnapshot.getKey()).replaceAll("[^a-zA-Z0-9]", "") + ".jpg").delete()
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Toast.makeText(getApplicationContext(), "Account delete failed", Toast.LENGTH_SHORT).show();
+                                    }
+                                }).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        postSnapshot.getRef().getParent().removeValue()
+                                                .addOnFailureListener(new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        Toast.makeText(getApplicationContext(), "Account delete failed", Toast.LENGTH_SHORT).show();
+                                                    }
+                                                }).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void aVoid) {
+                                                        Toast.makeText(getApplicationContext(), "Account delete success", Toast.LENGTH_SHORT).show();
+                                                    }
+                                                });
+                                    }
+                                });
                     }
                 }
             }
@@ -169,8 +223,10 @@ public class SettingsActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
-        delete = false;
 
+    }
+
+    private void delete() {
         currentUser.delete()
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
@@ -180,14 +236,14 @@ public class SettingsActivity extends AppCompatActivity {
                         }
                     }
                 });
-        signOut();
     }
     // Account functions
 
     // Storage
     private void setupStorage() {
-        storageReference = FirebaseStorage.getInstance().getReference(currentUserEmail);
-        databaseReference = FirebaseDatabase.getInstance().getReference(currentUserEmail.replaceAll("[^a-zA-Z ]", ""));
+        storageReference = FirebaseStorage.getInstance().getReference(currentUserUid);
+        databaseReference = FirebaseDatabase.getInstance().getReference(currentUserUid);
+        delete = false;
     }
     // Storage
 
