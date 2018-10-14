@@ -13,9 +13,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:text="@string/start_eye_test_button"
-        android:textSize="36sp"
-        android:visibility="visible" />
+        android:text="@string/camera_button" />
+
+    <Button
+        android:id="@+id/gallery_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/start_eye_test_button"
+        android:layout_centerHorizontal="true"
+        android:text="@string/gallery_button" />
 
     <TextView
         android:id="@+id/prediction_text_view"
@@ -34,7 +40,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="50sp"
         android:layout_marginEnd="50sp"
-        android:layout_below="@+id/start_eye_test_button"
+        android:layout_below="@+id/gallery_button"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="16dp" />
 
@@ -49,15 +55,13 @@
         android:textSize="20sp"
         android:visibility="visible" />
 
-    <TextView
-        android:id="@+id/output_text_view"
+    <!--<Button
+        android:id="@+id/guide_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
         android:layout_alignParentBottom="true"
-        android:text=""
-        android:textAlignment="center"
-        android:textSize="20sp"
-        android:visibility="visible" />
+        android:layout_centerHorizontal="true"
+        android:text="GUIDE"
+        android:onClick=""/>-->
 
 </RelativeLayout>

@@ -7,9 +7,15 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.drawable.BitmapDrawable;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
+import android.media.Image;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
@@ -27,6 +33,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -83,6 +90,7 @@ public class EyeTestActivity extends AppCompatActivity {
 
     // Start button
     private Button startEyeTestButton;
+    private Button galleryButton;
 
     // Views
     private View rootView;
@@ -192,6 +200,15 @@ public class EyeTestActivity extends AppCompatActivity {
             public void onClick(View v) {
                 imageTaken = true;
                 startActivity(new Intent(getApplicationContext(), CameraActivity.class));
+
+            }
+        });
+
+        galleryButton = findViewById(R.id.gallery_button);
+        galleryButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getApplicationContext(), ImageActivity.class));
             }
         });
     }
@@ -219,7 +236,19 @@ public class EyeTestActivity extends AppCompatActivity {
         Matrix matrix = new Matrix();
         matrix.postRotate(90);
         Bitmap bitmap = BitmapFactory.decodeFile(imageFile.getPath());
-        final Bitmap rotatedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+        Bitmap rotatedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+
+        int width, height;
+        height = rotatedBitmap.getHeight();
+        width = rotatedBitmap.getWidth();
+        final Bitmap bmpGrayscale = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas c = new Canvas(bmpGrayscale);
+        Paint paint = new Paint();
+        ColorMatrix cm = new ColorMatrix();
+        cm.setSaturation(0);
+        ColorMatrixColorFilter f = new ColorMatrixColorFilter(cm);
+        paint.setColorFilter(f);
+        c.drawBitmap(rotatedBitmap, 0, 0, paint);
 
         Threadings.runInMainThread(EyeTestActivity.this, new Runnable() {
             @Override
@@ -227,7 +256,7 @@ public class EyeTestActivity extends AppCompatActivity {
                 // Glasses Check
                 //predict(rotatedBitmap, "model_class_glasses.json", "file:///android_asset/glasses.pb");
                 // OCT Check
-                predict(rotatedBitmap, "model_class_OCT.json", "file:///android_asset/OCT.pb");
+                predict(bmpGrayscale, "model_class_OCT.json", "file:///android_asset/OCT.pb");
             }
         });
 

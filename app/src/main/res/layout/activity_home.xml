@@ -14,13 +14,13 @@
 
         <TextView
             android:id="@+id/welcome_text"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="20sp" />
 
         <TextView
             android:id="@+id/curr_record_text"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="20sp" />
 
@@ -28,25 +28,26 @@
             android:id="@+id/eye_test_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/eye_test_button"
-            android:textSize="36sp"
-            android:visibility="visible" />
+            android:text="@string/eye_test_button" />
 
         <Button
             android:id="@+id/records_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/records_button"
-            android:textSize="36sp"
-            android:visibility="visible" />
+            android:text="@string/records_button" />
 
         <Button
             android:id="@+id/settings_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/settings_button"
-            android:textSize="36sp"
-            android:visibility="visible" />
+            android:text="@string/settings_button" />
+
+        <Button
+            android:id="@+id/button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="NOTIFY"
+            android:onClick="sendNotification"/>
 
     </LinearLayout>
 

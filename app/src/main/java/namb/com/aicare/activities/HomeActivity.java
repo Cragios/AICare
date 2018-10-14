@@ -1,5 +1,8 @@
 package namb.com.aicare.activities;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -7,6 +10,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -30,6 +34,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import namb.com.aicare.R;
 import namb.com.aicare.adapters.RecordsAdapter;
@@ -46,6 +51,7 @@ public class HomeActivity extends AppCompatActivity {
     // Buttons
     private Button eyeTestButton;
     private Button recordsButton;
+    private Button mapButton;
     private Button settingsButton;
 
     // Profile
@@ -156,22 +162,70 @@ public class HomeActivity extends AppCompatActivity {
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     uploads.add(postSnapshot);
                 }
-                DataSnapshot snapshot = uploads.get(uploads.size()-1);
+                if (uploads.size() != 0) {
+                    DataSnapshot snapshot = uploads.get(uploads.size() - 1);
 
-                status = String.valueOf(snapshot.getValue()).split(" ")[0];
-                if (status.equals("NORMAL")) {
-                    currRecordText.setText(snapshot.getKey().split(" ")[0] + ": " + status);
+                    status = String.valueOf(snapshot.getValue()).split(" ")[0];
+                    if (status.equals("NORMAL")) {
+                        currRecordText.setText("Your most recent test shows that your eyes are fine!");
+                    } else {
+                        switch (status) {
+                            case "DRUSEN":
+                                currRecordText.setText("You have " + status);
+                                break;
+                            case "CNV":
+                                currRecordText.setText("You have " + status);
+                                break;
+                            case "DME":
+                                currRecordText.setText("You have " + status);
+                                break;
+                            default:
+                                currRecordText.setText("You have " + status);
+                                break;
+                        }
+                    }
                 }
-
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {
+            public void onCancelled(@NonNull DatabaseError databaseError) {
                 Toast.makeText(getApplicationContext(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
     // Check Results
+
+    // Response
+    //book doctor appointment
+    //reminders
+    // Response
+
+    // Notification
+    public void sendNotification(View view) {
+        NotificationManager mNotificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel("default",
+                    "YOUR_CHANNEL_NAME",
+                    NotificationManager.IMPORTANCE_DEFAULT);
+            channel.setDescription("YOUR_NOTIFICATION_CHANNEL_DISCRIPTION");
+            assert mNotificationManager != null;
+            mNotificationManager.createNotificationChannel(channel);
+        }
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext(), "default")
+                .setSmallIcon(R.drawable.splash_screen) // notification icon
+                .setContentTitle("AICare") // title for notification
+                .setContentText("Remember not to look at your screen for too long and rest your eyes!") // message for notification
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setAutoCancel(true); // clear notification after click
+        Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
+        PendingIntent pi = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        mBuilder.setContentIntent(pi);
+        assert mNotificationManager != null;
+        mNotificationManager.notify(0, mBuilder.build());
+    }
+    // Notification
 
     // Snackbar
     private void showSnackbar(@StringRes int errorMessageRes) {
